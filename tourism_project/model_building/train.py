@@ -63,7 +63,14 @@ with mlflow.start_run():
     # 7. Log metrics and params to MLflow
     mlflow.log_params(grid.best_params_)
     mlflow.log_metric("test_accuracy", acc)
-    mlflow.sklearn.log_model(best_model, "best_xgb_model")
+    
+    # FIX: Whitelist XGBoost and internal pipeline types for MLflow skops security
+    trusted_types = [
+        "xgboost.sklearn.XGBClassifier",
+        "xgboost.core.Booster",
+        "sklearn.compose._column_transformer._RemainderColsList"
+    ]
+    mlflow.sklearn.log_model(best_model, "best_xgb_model", skops_trusted_types=trusted_types)
     
     print(f"Best Parameters: {grid.best_params_}")
     print(f"Test Accuracy: {acc:.4f}")
