@@ -6,17 +6,14 @@ st.set_page_config(page_title="Wellness Tourism Predictor", layout="wide")
 st.title("Wellness Tourism Package Predictor")
 st.write("Enter customer details below to predict the likelihood of a package purchase.")
 
-# Load the trained model pipeline
 @st.cache_resource
 def load_model():
-    return joblib.load("tourism_project/deployment/model.joblib")
+    return joblib.load("model.joblib")
 
 model = load_model()
 
-# Create input form
 with st.form("customer_data_form"):
     col1, col2 = st.columns(2)
-    
     with col1:
         age = st.number_input("Age", min_value=18, max_value=100, value=30)
         city_tier = st.selectbox("City Tier", [1, 2, 3])
@@ -38,11 +35,9 @@ with st.form("customer_data_form"):
         pitch_satisfaction_score = st.selectbox("Pitch Satisfaction Score", [1, 2, 3, 4, 5])
         product_pitched = st.selectbox("Product Pitched", ["Basic", "Standard", "Deluxe", "Super Deluxe", "King"])
         number_of_followups = st.number_input("Number of Followups", min_value=1, value=3)
-
     submit = st.form_submit_button("Predict Purchase Probability")
 
 if submit:
-    # Assemble inputs into a DataFrame
     input_data = pd.DataFrame({
         "Age": [age], "TypeofContact": [type_of_contact], "CityTier": [city_tier],
         "DurationOfPitch": [duration_of_pitch], "Occupation": [occupation], "Gender": [gender],
@@ -54,14 +49,13 @@ if submit:
         "MonthlyIncome": [monthly_income]
     })
     
-    # Make Prediction
     prediction = model.predict(input_data)[0]
     probability = model.predict_proba(input_data)[0][1]
     
     st.divider()
     if prediction == 1:
-        st.success(f"### Prediction: High Likelihood to Purchase")
+        st.success("### Prediction: High Likelihood to Purchase")
         st.write(f"**Confidence:** {probability:.1%}")
     else:
-        st.error(f"### Prediction: Unlikely to Purchase")
+        st.error("### Prediction: Unlikely to Purchase")
         st.write(f"**Confidence:** {1 - probability:.1%}")
