@@ -63,7 +63,7 @@ jobs:
           python-version: "3.10"
       - name: Install Dependencies
         run: |
-          pip install pandas scikit-learn==1.5.2 xgboost mlflow joblib
+          pip install pandas scikit-learn==1.5.2 xgboost mlflow==3.0.1 joblib
       - name: Download Train Test Splits
         uses: actions/download-artifact@v4
         with:
