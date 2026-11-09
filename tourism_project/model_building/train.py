@@ -65,7 +65,17 @@ with mlflow.start_run():
     mlflow.log_params(grid.best_params_)
     mlflow.log_metric("test_accuracy", acc)
     
-    mlflow.sklearn.log_model(best_model, "best_xgb_model")
+    # ONE-SHOT FIX: Safely handle both old and new MLflow security protocols
+    try:
+        trusted_types = [
+            "xgboost.sklearn.XGBClassifier",
+            "xgboost.core.Booster",
+            "sklearn.compose._column_transformer._RemainderColsList"
+        ]
+        mlflow.sklearn.log_model(best_model, "best_xgb_model", skops_trusted_types=trusted_types)
+    except TypeError:
+        # Fallback for older MLflow versions (like your local Mac)
+        mlflow.sklearn.log_model(best_model, "best_xgb_model")
     
     print(f"Best Parameters: {grid.best_params_}")
     print(f"Test Accuracy: {acc:.4f}")
